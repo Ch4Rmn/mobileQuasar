@@ -1,81 +1,177 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+  <q-pull-to-refresh @refresh="refresh">
+    <q-layout view="lHh Lpr lFf">
+      <!-- Header -->
+      <q-header elevated class="bg-primary text-white">
+        <q-toolbar>
+          <q-avatar square size="40px" class="q-m-sm">
+            <img src="../assets/logo.png" alt="user" />
+          </q-avatar>
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
+          <q-toolbar-title>DPS MAP</q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
-    </q-header>
+          <!-- Marquee / Scrolling News -->
+          <!-- <div class="marquee-wrapper">
+          <div class="marquee">
+            Breaking News: DPS Maps launches new features! &nbsp; | &nbsp; Dark mode is now
+            available! &nbsp; | &nbsp; Visit dpsmap.com for more updates! &nbsp; | &nbsp; Download
+            maps for offline use!
+          </div>
+        </div> -->
+          <!--  -->
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+          <!-- Dark Mode Toggle -->
+          <q-btn
+            flat
+            round
+            dense
+            @click="toggleDarkMode"
+            :icon="$q.dark.isActive ? 'dark_mode' : 'light_mode'"
+            class="q-mr-sm"
+          />
 
-        <EssentialLink v-for="link in linksList" :key="link.title" v-bind="link" />
-      </q-list>
-    </q-drawer>
+          <!-- User Avatar / Menu -->
+          <q-btn flat round icon="account_circle" @click="goUser" />
+        </q-toolbar>
+      </q-header>
 
-    <q-page-container>
-      <router-view />
-    </q-page-container>
-  </q-layout>
+      <!-- Page Content -->
+      <q-page-container>
+        <router-view />
+      </q-page-container>
+
+      <!-- Bottom Navigation -->
+      <q-footer bordered>
+        <q-tabs v-model="tab" dense align="justify" indicator-color="primary">
+          <q-tab
+            name="news"
+            icon="article"
+            label="News"
+            @click="goTo('/news')"
+            :class="tab === 'news' ? 'active-tab' : ''"
+          />
+          <q-tab
+            name="people"
+            icon="group"
+            label="Links"
+            @click="goTo('/links')"
+            :class="tab === 'people' ? 'active-tab' : ''"
+          />
+          <q-tab
+            name="search"
+            icon="search"
+            label="Search"
+            @click="goTo('/search')"
+            :class="tab === 'search' ? 'active-tab' : ''"
+          />
+          <q-tab
+            name="saved"
+            icon="bookmark"
+            label="Saved"
+            @click="goTo('/saved')"
+            :class="tab === 'saved' ? 'active-tab' : ''"
+          />
+          <q-tab
+            name="user"
+            icon="person"
+            label="User"
+            @click="goTo('/user')"
+            :class="tab === 'user' ? 'active-tab' : ''"
+          />
+        </q-tabs>
+      </q-footer>
+    </q-layout>
+  </q-pull-to-refresh>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useQuasar } from 'quasar'
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-]
+const tab = ref('news')
+const router = useRouter()
+const route = useRoute()
+const $q = useQuasar()
 
-const leftDrawerOpen = ref(false)
+function goTo(path) {
+  router.push(path)
+}
 
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+function goUser() {
+  router.push('/user')
+}
+
+// Dark Mode Toggle
+function toggleDarkMode() {
+  $q.dark.toggle()
+  localStorage.setItem('darkMode', $q.dark.isActive)
+}
+
+// Apply saved dark mode
+if (localStorage.getItem('darkMode') === 'true') $q.dark.set(true)
+else $q.dark.set(false)
+
+// Auto-update active tab
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath.startsWith('/news')) tab.value = 'news'
+    else if (newPath.startsWith('/links')) tab.value = 'people'
+    else if (newPath.startsWith('/search')) tab.value = 'search'
+    else if (newPath.startsWith('/saved')) tab.value = 'saved'
+    else if (newPath.startsWith('/user')) tab.value = 'user'
+  },
+  { immediate: true },
+)
+
+function refresh(done) {
+  setTimeout(() => {
+    window.location.reload()
+    done()
+  }, 3000)
 }
 </script>
+
+<style scoped>
+/* Footer tab styling */
+.q-footer {
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+.q-tab__label {
+  font-size: 12px;
+}
+.active-tab {
+  background-color: #000000;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+/* Marquee Styling */
+.marquee-wrapper {
+  width: 50%;
+  overflow: hidden;
+  background-color: #007bff;
+  color: white;
+  padding: 6px 0;
+}
+
+.dark .marquee-wrapper {
+  background-color: #212121;
+  color: #00bcd4;
+}
+
+.marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+</style>

@@ -1,15 +1,17 @@
+import MainLayout from 'layouts/MainLayout.vue'
+
 const routes = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
-  },
-
-  // Always leave this as last one,
-  // but you can also remove it
-  {
-    path: '/:catchAll(.*)*',
-    component: () => import('pages/ErrorNotFound.vue'),
+    component: MainLayout,
+    children: [
+      { path: '', redirect: '/news' },
+      { path: '/news', component: () => import('pages/NewsPage.vue') },
+      { path: '/links', component: () => import('src/pages/LinksPage.vue') },
+      { path: '/search', component: () => import('pages/SearchPage.vue') },
+      { path: '/saved', component: () => import('pages/SavedPage.vue') },
+      { path: '/user', component: () => import('pages/UserPage.vue') },
+    ],
   },
 ]
 
