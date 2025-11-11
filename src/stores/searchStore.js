@@ -5,7 +5,7 @@ export const useSearchStore = defineStore('searchStore', () => {
   const searchQuery = ref('')
   const filterType = ref('all') // all | title | category | description
 
-  // Dummy 30 data items
+  // ✅ Dummy 30 local data
   const items = ref([
     {
       id: 1,
@@ -189,6 +189,28 @@ export const useSearchStore = defineStore('searchStore', () => {
     },
   ])
 
+  // ✅ Fetch data from API and push into items
+  const fetchPokemon = async () => {
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/data')
+      const data = await res.json()
+      console.log(data)
+
+      const newItems = data.results.map((p, i) => ({
+        id: items.value.length + i + 1,
+        title: p.name.charAt(0).toUpperCase() + p.name.slice(1),
+        category: 'Pokémon',
+        description: `This is ${p.name}, a Pokémon fetched from the API.`,
+        image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${i + 1}.png`,
+      }))
+
+      items.value.push(...newItems)
+      console.log('✅ Pokémon fetched & added:', newItems.length)
+    } catch (err) {
+      console.error('❌ Fetch error:', err)
+    }
+  }
+
   const filteredItems = computed(() => {
     const query = searchQuery.value.trim().toLowerCase()
     if (!query) return items.value
@@ -210,5 +232,6 @@ export const useSearchStore = defineStore('searchStore', () => {
     filterType,
     items,
     filteredItems,
+    fetchPokemon,
   }
 })

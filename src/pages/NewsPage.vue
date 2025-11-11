@@ -9,7 +9,7 @@
     </div>
     <br />
 
-    <div class="text-h6 q-mb-md">📰 Latest News</div>
+    <div class="text-h6 q-mb-md">Latest News</div>
 
     <q-list bordered>
       <q-item v-for="n in news" :key="n.id">

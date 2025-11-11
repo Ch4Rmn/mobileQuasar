@@ -6,13 +6,16 @@ import { fileURLToPath } from 'node:url'
 
 export default defineConfig((ctx) => {
   return {
+    bin: {
+      linuxAndroidStudio: '/snap/android-studio/209/bin/studio.sh',
+    },
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
 
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ['i18n', 'axios'],
+    boot: ['i18n', 'axios','splash'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.scss'],

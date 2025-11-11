@@ -5,7 +5,6 @@
       <div class="col-8">
         <q-input
           outlined
-          
           dense
           color="primary"
           v-model="searchStore.searchQuery"
